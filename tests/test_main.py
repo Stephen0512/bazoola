@@ -447,12 +447,14 @@ def test_db_delete_insert_delete_reopen_insert(db):
     db.delete_by_id("a", res["id"])
     db.close()
     db2 = DB([TableA], base_dir=TEST_BASE_DIR)
+    try:
+        res = db2.insert("a", {"text": "new"})
 
-    res = db2.insert("a", {"text": "new"})
-
-    assert res["id"] == 3
-    assert db2.find_all("a") == [{"id": 3, "text": "new"}]
-    assert_file_contents("a.dat", b"3        new  \n")
+        assert res["id"] == 3
+        assert db2.find_all("a") == [{"id": 3, "text": "new"}]
+        assert_file_contents("a.dat", b"3        new  \n")
+    finally:
+        db2.close()
 
 
 @use_tables("a")
